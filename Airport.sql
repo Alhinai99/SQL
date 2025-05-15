@@ -1,0 +1,138 @@
+CREATE DATABASE AirlineSystem_DB;
+USE AirlineSystem_DB;
+
+-- AIRPORT
+CREATE TABLE AIRPORT (
+    Airport_Code CHAR(5) PRIMARY KEY,
+    Name VARCHAR(50),
+    City VARCHAR(50),
+    State VARCHAR(50)
+);
+
+-- AIRPLANE_TYPE
+CREATE TABLE AIRPLANE_TYPE (
+    ARTY_ID INT PRIMARY KEY,
+    Type_Name VARCHAR(50),
+    Company VARCHAR(50),
+    Max_Seat INT
+);
+
+-- AIRPLANE
+CREATE TABLE AIRPLANE (
+    Airplane_ID INT PRIMARY KEY,
+    Total_Seats INT,
+    ARTY_ID INT
+);
+
+-- FLIGHT
+CREATE TABLE FLIGHT (
+    Flight_Num INT PRIMARY KEY,
+    Airline VARCHAR(50),
+    Week_Days VARCHAR(50),
+    Restrictions TEXT
+);
+
+-- FLIGHT_LEG
+CREATE TABLE FLIGHT_LEG (
+    Leg_Num INT PRIMARY KEY,
+    Flight_Num INT,
+    Dep_Airport CHAR(5),
+    Arr_Airport CHAR(5),
+    Scheduled_Dep_Time TIME,
+    Scheduled_Arr_Time TIME
+);
+
+-- LEG_INSTANCE
+CREATE TABLE LEG_INSTANCE (
+    Leg_Num INT,
+    Date DATE,
+    Dep_Time TIME,
+    Arr_Time TIME,
+    Available_Seats INT,
+    PRIMARY KEY (Leg_Num, Date)
+);
+
+-- CUSTOMER
+CREATE TABLE CUSTOMER (
+    Customer_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Phone VARCHAR(15)
+);
+
+-- SEAT
+CREATE TABLE SEAT (
+    Seat_Num INT PRIMARY KEY,
+    Customer_ID INT
+);
+
+-- FARE
+CREATE TABLE FARE (
+    Fare_ID INT PRIMARY KEY,
+    Code VARCHAR(10),
+    Amount DECIMAL(10,2)
+);
+
+-- RESERVATION
+CREATE TABLE RESERVATION (
+    Seat_Num INT,
+    Fare_ID INT,
+    PRIMARY KEY (Seat_Num, Fare_ID)
+);
+
+-- ASSIGNMENT
+CREATE TABLE ASSIGNMENT (
+    Airplane_ID INT,
+    Leg_Num INT,
+    PRIMARY KEY (Airplane_ID, Leg_Num)
+);
+
+-- AIRPLANE -> AIRPLANE_TYPE
+ALTER TABLE AIRPLANE
+ADD CONSTRAINT fk_airplane_type
+FOREIGN KEY (ARTY_ID) REFERENCES AIRPLANE_TYPE(ARTY_ID);
+
+-- FLIGHT_LEG -> FLIGHT
+ALTER TABLE FLIGHT_LEG
+ADD CONSTRAINT fk_flight_leg_flight
+FOREIGN KEY (Flight_Num) REFERENCES FLIGHT(Flight_Num);
+
+-- FLIGHT_LEG -> AIRPORT (Departure)
+ALTER TABLE FLIGHT_LEG
+ADD CONSTRAINT fk_flight_leg_dep_airport
+FOREIGN KEY (Dep_Airport) REFERENCES AIRPORT(Airport_Code);
+
+-- FLIGHT_LEG -> AIRPORT (Arrival)
+ALTER TABLE FLIGHT_LEG
+ADD CONSTRAINT fk_flight_leg_arr_airport
+FOREIGN KEY (Arr_Airport) REFERENCES AIRPORT(Airport_Code);
+
+-- LEG_INSTANCE -> FLIGHT_LEG
+ALTER TABLE LEG_INSTANCE
+ADD CONSTRAINT fk_leg_instance_leg
+FOREIGN KEY (Leg_Num) REFERENCES FLIGHT_LEG(Leg_Num);
+
+-- SEAT -> CUSTOMER
+ALTER TABLE SEAT
+ADD CONSTRAINT fk_seat_customer
+FOREIGN KEY (Customer_ID) REFERENCES CUSTOMER(Customer_ID);
+
+-- RESERVATION -> SEAT
+ALTER TABLE RESERVATION
+ADD CONSTRAINT fk_reservation_seat
+FOREIGN KEY (Seat_Num) REFERENCES SEAT(Seat_Num);
+
+-- RESERVATION -> FARE
+ALTER TABLE RESERVATION
+ADD CONSTRAINT fk_reservation_fare
+FOREIGN KEY (Fare_ID) REFERENCES FARE(Fare_ID);
+
+-- ASSIGNMENT -> AIRPLANE
+ALTER TABLE ASSIGNMENT
+ADD CONSTRAINT fk_assignment_airplane
+FOREIGN KEY (Airplane_ID) REFERENCES AIRPLANE(Airplane_ID);
+
+-- ASSIGNMENT -> FLIGHT_LEG
+ALTER TABLE ASSIGNMENT
+ADD CONSTRAINT fk_assignment_leg
+FOREIGN KEY (Leg_Num) REFERENCES FLIGHT_LEG(Leg_Num);
+
